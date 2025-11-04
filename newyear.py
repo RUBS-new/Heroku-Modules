@@ -6,7 +6,7 @@
 # meta pic: https://raw.githubusercontent.com/RUBS-new/Heroku-Modules/refs/heads/main/banner/banner_newyear.png
 # meta name: NewYearCountdown
 # scope: hikka_only
-# meta version: 1.2.2 
+# meta version: 1.2.5 
 
 import datetime
 import random
@@ -21,8 +21,11 @@ DEFAULT_BANNER_URL = "https://raw.githubusercontent.com/RUBS-new/Heroku-Modules/
 
 @loader.tds
 class NewYearCountdownMod(loader.Module):
-    """Показывает, сколько осталось до Нового года."""
-
+    """
+    Показывает, сколько осталось до Нового года с автообновлением.
+    ⚙️ Настройки: .cfg NewYearCountdown
+    """
+    
     def config_complete(self):
         if self.config["Banner URL"] == "CHANGE_ME":
             self.config["Banner URL"] = DEFAULT_BANNER_URL
@@ -37,12 +40,12 @@ class NewYearCountdownMod(loader.Module):
             ),
             loader.ConfigValue(
                 "UpdateIntervalSeconds",
-                60, 
+                5,  
                 lambda: "Интервал обновления таймера (в секундах). Рекомендуется: 60 (1 минута). Минимум: 5 секунд.",
             ),
             loader.ConfigValue(
                 "TotalDurationSeconds",
-                3600, 
+                15, 
                 lambda: "Общая продолжительность работы таймера (в секундах). После этого времени обновление сообщения прекратится.",
             ),
         )
@@ -119,13 +122,13 @@ class NewYearCountdownMod(loader.Module):
                 countdown_data = self._get_countdown()
                 new_caption = self.strings["countdown"].format(**countdown_data)
 
-                # ИСПРАВЛЕНИЕ: Используем text= вместо caption= при редактировании
+                # Используем text= вместо caption= при редактировании
                 if countdown_data["days"] >= 0:
                     await status_msg.edit(text=new_caption, file=photo_url, parse_mode="HTML")
                 else:
                     break # Новый год наступил
 
-            # ИСПРАВЛЕНИЕ: Используем text= вместо caption= для завершающего сообщения
+            # Используем text= вместо caption= для завершающего сообщения
             await status_msg.edit(text=self.strings["update_stopped"].format(duration=total_duration), file=photo_url, parse_mode="HTML")
             
         except asyncio.CancelledError:
